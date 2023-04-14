@@ -40,7 +40,7 @@ const getContentByType = (req, res) => {
 const createContent = (req, res) => {
   const { type, name, image_url, total_ratings, average_rating } = req.body;
   pool.query(
-    'INSERT INTO content (type, name, image_url, total_ratings, average_rating) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    'INSERT INTO content (type, name, image_url, total_ratings, average_rating) VALUES ($1, $2, $3, $4, $5)',
     [type, name, image_url, total_ratings, average_rating],
     (error, results) => {
       if (error) {
