@@ -10,9 +10,11 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+const userController = require('./controllers/users.js');
 const contentController = require('./controllers/content.js');
 
-app.use('/content', contentController);
+app.use('/', userController);
+app.use('/getContent', contentController);
 
 app.get('/test', (req, res) => {
   res.send(req.body);
