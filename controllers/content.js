@@ -11,7 +11,7 @@ const pool = new Pool({
 });
 
 app.get('/', (req, res) => {
-  pool.query('SELECT * FROM content', (error, results) => {
+  pool.query('SELECT * FROM content ORDER BY id ASC', (error, results) => {
     if (error) {
       throw error;
     }
@@ -27,6 +27,20 @@ app.get('/:id', (req, res) => {
     }
     res.status(200).json(results.rows);
   });
+});
+
+app.get('/title/:name', (req, res) => {
+  const name = req.params.name;
+  pool.query(
+    'SELECT * FROM content WHERE name ILIKE $1 ORDER BY name',
+    [`%${name}%`],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      res.status(200).json(results.rows);
+    }
+  );
 });
 
 app.get('/type/:type', (req, res) => {
