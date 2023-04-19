@@ -12,9 +12,11 @@ app.use(cors());
 
 const userController = require('./controllers/users.js');
 const contentController = require('./controllers/content.js');
+const ratingsController = require('./controllers/user_rating.js');
 
 app.use('/', userController);
 app.use('/getContent', contentController);
+app.use('/', ratingsController);
 
 app.get('/test', (req, res) => {
   res.send(req.body);
