@@ -17,6 +17,7 @@ CREATE TABLE user_ratings (
 );
      */
 
+// TODO: change this for multi-search
 app.post('/addUserRating', (req, res) => {
   try {
     const { user_id, id, title, poster_path, vote_average, content_type } = req.body;
@@ -37,5 +38,8 @@ app.post('/addUserRating', (req, res) => {
     res.status(500).json({ error: 'An error occurred' });
   }
 });
+
+// ? query for {id, title, poster_path, media_type, vote_average}
+// ? possibly origional_language: "en"
 
 module.exports = app;
