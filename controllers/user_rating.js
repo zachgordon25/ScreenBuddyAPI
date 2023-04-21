@@ -2,34 +2,19 @@ const express = require('express');
 const app = express.Router();
 const pool = require('./pool.js');
 
-/**
-CREATE TABLE user_ratings (
-   rating_id SERIAL PRIMARY KEY,
-    user_id VARCHAR(255),
-    content_id INT,
-    title VARCHAR(255),
-    image_url VARCHAR(255),
-    rating DOUBLE PRECISION,
-    content_type VARCHAR(255),
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
-);
-     */
-
-// TODO: change this for multi-search
 app.post('/addUserRating', (req, res) => {
   try {
-    const { user_id, id, title, poster_path, vote_average, content_type } = req.body;
+    const { user_id, id, title, name, poster_path, vote_average, media_type } = req.body.results[4];
+    const contentTitle = media_type === 'movie' ? title : name;
     pool.query(
       'INSERT INTO user_ratings (user_id, content_id, title, image_url, rating, content_type) VALUES ($1, $2, $3, $4, $5, $6)',
       [
         user_id,
         id,
-        title,
+        contentTitle,
         `https://image.tmdb.org/t/p/w600_and_h900_bestv2${poster_path}`,
         vote_average,
-        content_type,
+        media_type,
       ]
     );
     res.status(201).send('Success');
@@ -38,8 +23,5 @@ app.post('/addUserRating', (req, res) => {
     res.status(500).json({ error: 'An error occurred' });
   }
 });
-
-// ? query for {id, title, poster_path, media_type, vote_average}
-// ? possibly origional_language: "en"
 
 module.exports = app;
