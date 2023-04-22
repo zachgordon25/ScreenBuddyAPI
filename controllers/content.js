@@ -12,6 +12,32 @@ app.get('/', async (req, res) => {
   }
 });
 
+app.post('/get', async (req, res) => {
+  try {
+    const { type, name } = req.body;
+    let query = 'SELECT * FROM content WHERE';
+    const queryParams = [];
+    if (type && name) {
+      query += ' type = $1 AND name ILIKE $2';
+      queryParams.push(type, `%${name}%`);
+    } else if (type) {
+      query += ' type = $1';
+      queryParams.push(type);
+    } else if (name) {
+      query += ' name ILIKE $1';
+      queryParams.push(`%${name}%`);
+    } else {
+      res.status(400).json({ error: 'Please provide a type or name' });
+      return;
+    }
+    const { rows } = await pool.query(query, queryParams);
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
 app.get('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
