@@ -8,7 +8,11 @@ app.get('/getAllContent', async (req, res) => {
     res.status(200).json(results.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({
+      success: false,
+      message: 'Error: cannot get content',
+      error: err,
+    });
   }
 });
 
@@ -34,7 +38,11 @@ app.post('/getContent', async (req, res) => {
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({
+      success: false,
+      message: 'Error: content not found',
+      error: err,
+    });
   }
 });
 
@@ -66,7 +74,11 @@ app.post('/addContent', (req, res) => {
     res.status(201).send('Success');
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({
+      success: false,
+      message: 'Error: content not added',
+      error: err,
+    });
   }
 });
 
