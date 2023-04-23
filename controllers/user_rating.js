@@ -2,11 +2,11 @@ const express = require('express');
 const app = express.Router();
 const pool = require('./pool.js');
 
-app.post('/addUserRating', (req, res) => {
+app.post('/addUserRating', async (req, res) => {
   try {
-    const { user_id, id, title, name, poster_path, vote_average, media_type } = req.body.results[4];
+    const { user_id, id, title, name, poster_path, vote_average, media_type } = req.body;
     const contentTitle = media_type === 'movie' ? title : name;
-    pool.query(
+    await pool.query(
       'INSERT INTO user_ratings (user_id, content_id, title, image_url, rating, content_type) VALUES ($1, $2, $3, $4, $5, $6)',
       [
         user_id,
@@ -17,10 +17,56 @@ app.post('/addUserRating', (req, res) => {
         media_type,
       ]
     );
-    res.status(201).send('Success');
+    res.status(201).send({
+      success: true,
+      message: 'User rating added successfully',
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({
+      success: false,
+      message: 'Error: rating not added',
+    });
+  }
+});
+
+app.put('/updateUserRating', async (req, res) => {
+  try {
+    const { rating, user_id, content_id } = req.body;
+    await pool.query(
+      'UPDATE user_ratings SET rating = $1, updated_at = NOW() WHERE user_id = $2 AND content_id = $3',
+      [rating, user_id, content_id]
+    );
+    res.status(201).send({
+      success: true,
+      message: 'User rating updated successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: 'Error: rating not updated',
+    });
+  }
+});
+
+app.delete('/deleteUserRating', async (req, res) => {
+  try {
+    const { user_id, content_id } = req.body;
+    await pool.query('DELETE FROM user_ratings WHERE user_id = $1 AND content_id = $2', [
+      user_id,
+      content_id,
+    ]);
+    res.status(200).send({
+      success: true,
+      message: 'User rating deleted successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: 'Error: rating not deleted',
+    });
   }
 });
 

@@ -73,12 +73,19 @@ app.get('/type/:type', async (req, res) => {
   }
 });
 
-app.post('/', async (req, res) => {
+app.post('/', (req, res) => {
   try {
-    const { type, name, image_url, total_ratings, average_rating } = req.body;
-    await pool.query(
-      'INSERT INTO content (type, name, image_url, total_ratings, average_rating) VALUES ($1, $2, $3, $4, $5)',
-      [type, name, image_url, total_ratings, average_rating]
+    const { id, title, name, poster_path, vote_average, media_type } = req.body;
+    const contentTitle = media_type === 'movie' ? title : name;
+    pool.query(
+      'INSERT INTO content (id, title, image_url, rating, content_type) VALUES ($1, $2, $3, $4, $5)',
+      [
+        id,
+        contentTitle,
+        `https://image.tmdb.org/t/p/w600_and_h900_bestv2${poster_path}`,
+        vote_average,
+        media_type,
+      ]
     );
     res.status(201).send('Success');
   } catch (err) {
