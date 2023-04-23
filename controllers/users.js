@@ -9,7 +9,11 @@ app.get('/getAllUserIds', async (req, res) => {
     res.status(200).json(userIds);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({
+      success: false,
+      message: 'Error: cannot get user ids',
+      error: err,
+    });
   }
 });
 
@@ -35,7 +39,11 @@ app.post('/getUser', async (req, res) => {
     res.status(200).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({
+      success: false,
+      message: 'Error: user not found',
+      error: err,
+    });
   }
 });
 
@@ -51,7 +59,11 @@ app.post('/addUser', async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({
+      success: false,
+      message: 'Error: user not added',
+      error: err,
+    });
   }
 });
 

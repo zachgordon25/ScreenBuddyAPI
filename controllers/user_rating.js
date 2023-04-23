@@ -26,6 +26,7 @@ app.post('/addUserRating', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error: rating not added',
+      error: err,
     });
   }
 });
@@ -46,6 +47,7 @@ app.put('/updateUserRating', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error: rating not updated',
+      error: err,
     });
   }
 });
@@ -66,6 +68,7 @@ app.delete('/deleteUserRating', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error: rating not deleted',
+      error: err,
     });
   }
 });
