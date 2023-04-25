@@ -16,6 +16,8 @@ app.get('/getAllContent', async (req, res) => {
   }
 });
 
+// TODO: update query for user_id, content_type (category), title, and filter(order by)
+// * it should hit user_ratings if there is a user_id, otherwise it should hit content
 app.post('/getContent', async (req, res) => {
   try {
     const { content_type, title } = req.body;
