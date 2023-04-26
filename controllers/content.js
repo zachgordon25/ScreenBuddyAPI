@@ -2,40 +2,35 @@ const express = require('express');
 const app = express.Router();
 const pool = require('./pool.js');
 
-app.get('/getAllContent', async (req, res) => {
-  try {
-    const results = await pool.query('SELECT * FROM content ORDER BY id ASC');
-    res.status(200).json(results.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: 'Error: cannot get content',
-      error: err,
-    });
-  }
-});
-
-// TODO: update query for user_id, content_type (category), title, and filter(order by)
-// * it should hit user_ratings if there is a user_id, otherwise it should hit content
 app.post('/getContent', async (req, res) => {
   try {
-    const { content_type, title } = req.body;
-    let query = 'SELECT * FROM content WHERE';
+    const { user_id, content_type, title, filter } = req.body;
+
+    let query = `SELECT content.id, content.title, content.image_url, content.content_type, 
+    ${user_id ? 'user_ratings.rating' : 'content.rating'} AS rating FROM content`;
+
     const queryParams = [];
-    if (content_type && title) {
-      query += ' content_type = $1 AND title ILIKE $2';
-      queryParams.push(content_type, `%${title}%`);
-    } else if (content_type) {
-      query += ' content_type = $1';
-      queryParams.push(content_type);
-    } else if (title) {
-      query += ' title ILIKE $1';
-      queryParams.push(`%${title}%`);
-    } else {
-      res.status(400).json({ error: 'Please provide a content_type or title' });
-      return;
+    if (user_id) {
+      query +=
+        ' JOIN user_ratings ON content.id = user_ratings.content_id AND user_ratings.user_id = $1';
+      queryParams.push(user_id);
     }
+
+    let where = '';
+    if (content_type) {
+      where += where.length ? ' AND' : ' WHERE';
+      where += ` content.content_type = $${queryParams.length + 1}`;
+      queryParams.push(content_type);
+    }
+
+    if (title) {
+      where += where.length ? ' AND' : ' WHERE';
+      where += ` content.title ILIKE $${queryParams.length + 1}`;
+      queryParams.push(`%${title}%`);
+    }
+
+    query += where;
+    query += filter ? ` ORDER BY ${filter}` : ' ORDER BY content.created_at ASC';
     const { rows } = await pool.query(query, queryParams);
     res.status(200).json(rows);
   } catch (err) {
