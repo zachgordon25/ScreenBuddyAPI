@@ -7,7 +7,7 @@ app.post('/getContent', async (req, res) => {
     const { user_id, content_type, title, filter } = req.body;
 
     let query = `SELECT content.id, content.title, content.image_url, content.content_type, 
-    ${user_id ? 'user_ratings.rating' : 'content.rating'} AS rating FROM content`;
+        ${user_id ? 'user_ratings.rating' : 'content.rating'} AS rating FROM content`;
 
     const queryParams = [];
     if (user_id) {
@@ -30,7 +30,14 @@ app.post('/getContent', async (req, res) => {
     }
 
     query += where;
-    query += filter ? ` ORDER BY ${filter}` : ' ORDER BY content.created_at ASC';
+
+    if (filter) {
+      query += ` ORDER BY ${filter}`;
+    } else {
+      query += user_id
+        ? ' ORDER BY user_ratings.updated_at ASC'
+        : ' ORDER BY content.updated_at ASC';
+    }
     const { rows } = await pool.query(query, queryParams);
     res.status(200).json(rows);
   } catch (err) {

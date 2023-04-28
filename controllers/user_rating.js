@@ -4,19 +4,18 @@ const pool = require('./pool.js');
 
 app.post('/addUserRating', async (req, res) => {
   try {
-    const { user_id, id, title, name, poster_path, vote_average, media_type } = req.body;
-    const contentTitle = media_type === 'movie' ? title : name;
+    const { user_id, content_id, title, image_url, rating, content_type } = req.body;
 
-    const contentCheck = await pool.query('SELECT * FROM content WHERE id = $1', [id]);
+    const contentCheck = await pool.query('SELECT * FROM content WHERE id = $1', [content_id]);
     if (contentCheck.rows.length === 0) {
       await pool.query(
         'INSERT INTO content (id, title, image_url, rating, content_type) VALUES ($1, $2, $3, $4, $5)',
         [
-          id,
-          contentTitle,
-          `https://image.tmdb.org/t/p/w600_and_h900_bestv2${poster_path}`,
-          vote_average,
-          media_type,
+          content_id,
+          title,
+          `https://image.tmdb.org/t/p/w600_and_h900_bestv2${image_url}`,
+          rating,
+          content_type,
         ]
       );
     }
@@ -25,11 +24,11 @@ app.post('/addUserRating', async (req, res) => {
       'INSERT INTO user_ratings (user_id, content_id, title, image_url, rating, content_type) VALUES ($1, $2, $3, $4, $5, $6)',
       [
         user_id,
-        id,
-        contentTitle,
-        `https://image.tmdb.org/t/p/w600_and_h900_bestv2${poster_path}`,
-        vote_average,
-        media_type,
+        content_id,
+        title,
+        `https://image.tmdb.org/t/p/w600_and_h900_bestv2${image_url}`,
+        rating,
+        content_type,
       ]
     );
     res.status(201).send({
