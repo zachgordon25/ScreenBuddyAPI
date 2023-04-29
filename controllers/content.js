@@ -16,28 +16,30 @@ app.post('/getContent', async (req, res) => {
       queryParams.push(user_id);
     }
 
-    let where = '';
+    let whereClause = '';
+
     if (content_type) {
-      where += where.length ? ' AND' : ' WHERE';
-      where += ` content.content_type = $${queryParams.length + 1}`;
+      whereClause += whereClause.length ? ' AND' : ' WHERE';
+      whereClause += ` content.content_type = $${queryParams.length + 1}`;
       queryParams.push(content_type);
     }
 
     if (title) {
-      where += where.length ? ' AND' : ' WHERE';
-      where += ` content.title ILIKE $${queryParams.length + 1}`;
+      whereClause += whereClause.length ? ' AND' : ' WHERE';
+      whereClause += ` content.title ILIKE $${queryParams.length + 1}`;
       queryParams.push(`%${title}%`);
     }
 
-    query += where;
+    query += whereClause;
 
     if (filter) {
-      query += ` ORDER BY ${filter}`;
+      query += user_id ? ` ORDER BY user_ratings.${filter}` : ` ORDER BY content.${filter}`;
     } else {
       query += user_id
         ? ' ORDER BY user_ratings.updated_at DESC'
         : ' ORDER BY content.updated_at DESC';
     }
+
     const { rows } = await pool.query(query, queryParams);
     res.status(200).json(rows);
   } catch (err) {
