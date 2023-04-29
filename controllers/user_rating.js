@@ -57,7 +57,9 @@ app.post('/addUserRating', async (req, res) => {
 app.put('/updateUserRating', async (req, res) => {
   try {
     const { rating, user_id, content_id } = req.body;
+
     await updateUserRating(user_id, content_id, rating);
+
     res.status(201).send({
       success: true,
       message: 'User rating updated successfully',
@@ -75,10 +77,12 @@ app.put('/updateUserRating', async (req, res) => {
 app.delete('/deleteUserRating', async (req, res) => {
   try {
     const { user_id, content_id } = req.query;
+
     await pool.query('DELETE FROM user_ratings WHERE user_id = $1 AND content_id = $2', [
       user_id,
       content_id,
     ]);
+
     res.status(200).send({
       success: true,
       message: 'User rating deleted successfully',
