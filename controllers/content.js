@@ -35,8 +35,8 @@ app.post('/getContent', async (req, res) => {
       query += ` ORDER BY ${filter}`;
     } else {
       query += user_id
-        ? ' ORDER BY user_ratings.updated_at ASC'
-        : ' ORDER BY content.updated_at ASC';
+        ? ' ORDER BY user_ratings.updated_at DESC'
+        : ' ORDER BY content.updated_at DESC';
     }
     const { rows } = await pool.query(query, queryParams);
     res.status(200).json(rows);
