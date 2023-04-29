@@ -2,6 +2,13 @@ const express = require('express');
 const app = express.Router();
 const pool = require('./pool.js');
 
+const updateUserRating = async (user_id, content_id, user_rating) => {
+  await pool.query(
+    'UPDATE user_ratings SET rating = $1, updated_at = NOW() WHERE user_id = $2 AND content_id = $3',
+    [user_rating, user_id, content_id]
+  );
+};
+
 app.post('/addUserRating', async (req, res) => {
   try {
     const { user_id, content_id, title, image_url, rating, user_rating, content_type } = req.body;
@@ -30,26 +37,12 @@ app.post('/addUserRating', async (req, res) => {
         message: 'User rating added successfully',
       });
     } else {
-      try {
-        const { user_rating, user_id, content_id } = req.body;
+      await updateUserRating(user_id, content_id, user_rating);
 
-        await pool.query(
-          'UPDATE user_ratings SET rating = $1, updated_at = NOW() WHERE user_id = $2 AND content_id = $3',
-          [user_rating, user_id, content_id]
-        );
-
-        res.status(201).send({
-          success: true,
-          message: 'User rating updated successfully',
-        });
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({
-          success: false,
-          message: 'Error: rating not updated',
-          error: err,
-        });
-      }
+      res.status(201).send({
+        success: true,
+        message: 'User rating updated successfully',
+      });
     }
   } catch (err) {
     console.error(err);
@@ -64,10 +57,7 @@ app.post('/addUserRating', async (req, res) => {
 app.put('/updateUserRating', async (req, res) => {
   try {
     const { rating, user_id, content_id } = req.body;
-    await pool.query(
-      'UPDATE user_ratings SET rating = $1, updated_at = NOW() WHERE user_id = $2 AND content_id = $3',
-      [rating, user_id, content_id]
-    );
+    await updateUserRating(user_id, content_id, rating);
     res.status(201).send({
       success: true,
       message: 'User rating updated successfully',
