@@ -31,11 +31,11 @@ app.post('/addUserRating', async (req, res) => {
       });
     } else {
       try {
-        const { rating, user_id, content_id } = req.body;
+        const { user_rating, user_id, content_id } = req.body;
 
         await pool.query(
           'UPDATE user_ratings SET rating = $1, updated_at = NOW() WHERE user_id = $2 AND content_id = $3',
-          [rating, user_id, content_id]
+          [user_rating, user_id, content_id]
         );
 
         res.status(201).send({
