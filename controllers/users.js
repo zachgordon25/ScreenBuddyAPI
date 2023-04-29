@@ -5,6 +5,7 @@ const pool = require('./pool.js');
 app.get('/getAllUserIds', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT user_id FROM users');
+
     const userIds = rows.map((row) => row.user_id);
     res.status(200).json(userIds);
   } catch (err) {
@@ -20,8 +21,10 @@ app.get('/getAllUserIds', async (req, res) => {
 app.post('/getUser', async (req, res) => {
   try {
     const { user_id, username } = req.body;
+
     let query = 'SELECT * FROM users WHERE';
     const queryParams = [];
+
     if (user_id && username) {
       query += ' user_id = $1 AND username = $2';
       queryParams.push(user_id, username);
@@ -35,6 +38,7 @@ app.post('/getUser', async (req, res) => {
       res.status(400).json({ error: 'Please provide user_id or username' });
       return;
     }
+
     const { rows } = await pool.query(query, queryParams);
     res.status(200).json(rows[0]);
   } catch (err) {
@@ -53,6 +57,7 @@ app.post('/addUser', async (req, res) => {
       req.body.data.id,
       req.body.data.username,
     ]);
+
     res.status(200).json({
       success: true,
       message: 'User created successfully',

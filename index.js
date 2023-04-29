@@ -16,8 +16,4 @@ app.use('/', userController);
 app.use('/', contentController);
 app.use('/', ratingsController);
 
-app.get('/test', (req, res) => {
-  res.send(req.body);
-});
-
 app.listen(port, () => console.log(`listening on port ${port}`));
