@@ -84,7 +84,7 @@ app.put('/updateUserRating', async (req, res) => {
 
 app.delete('/deleteUserRating', async (req, res) => {
   try {
-    const { user_id, content_id } = req.query; // Use req.query instead of req.body
+    const { user_id, content_id } = req.query;
     await pool.query('DELETE FROM user_ratings WHERE user_id = $1 AND content_id = $2', [
       user_id,
       content_id,
@@ -102,6 +102,5 @@ app.delete('/deleteUserRating', async (req, res) => {
     });
   }
 });
-
 
 module.exports = app;
