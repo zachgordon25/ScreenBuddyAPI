@@ -4,7 +4,7 @@ const pool = require('./pool.js');
 
 app.post('/addUserRating', async (req, res) => {
   try {
-    const { user_id, content_id, title, image_url, rating, content_type } = req.body;
+    const { user_id, content_id, title, image_url, rating, user_rating, content_type } = req.body;
 
     const contentCheck = await pool.query('SELECT * FROM content WHERE id = $1', [content_id]);
     if (contentCheck.rows.length === 0) {
@@ -27,7 +27,7 @@ app.post('/addUserRating', async (req, res) => {
         content_id,
         title,
         `https://image.tmdb.org/t/p/w600_and_h900_bestv2${image_url}`,
-        rating,
+        user_rating,
         content_type,
       ]
     );
