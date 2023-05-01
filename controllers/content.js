@@ -36,7 +36,7 @@ const buildQuery = (user_id, content_type, title, filter) => {
       ? ' ORDER BY user_ratings.updated_at DESC'
       : ' ORDER BY content.updated_at DESC';
   }
-
+  query += user_id ? '' : ' LIMIT 20';
   return { query, queryParams };
 };
 
