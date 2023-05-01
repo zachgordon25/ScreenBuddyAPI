@@ -57,4 +57,21 @@ app.post('/getContent', async (req, res) => {
   }
 });
 
+app.get('/getPageCount', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT COUNT(*) / 20 FROM content');
+    const numPages = parseInt(Object.values(rows[0])[0]);
+
+    res.status(200).json({
+      pages: numPages,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: 'Error: cannot get page count',
+      error: err,
+    });
+  }
+});
 module.exports = app;
