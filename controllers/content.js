@@ -2,7 +2,7 @@ const express = require('express');
 const app = express.Router();
 const pool = require('./pool.js');
 
-const buildQuery = (user_id, content_type, title, filter) => {
+const buildQuery = (user_id, content_type, title, filter, page) => {
   let query = `SELECT content.id, content.title, content.image_url, content.content_type, 
     ${user_id ? 'user_ratings.rating' : 'content.rating'} AS rating FROM content`;
 
@@ -36,14 +36,21 @@ const buildQuery = (user_id, content_type, title, filter) => {
       ? ' ORDER BY user_ratings.updated_at DESC'
       : ' ORDER BY content.updated_at DESC';
   }
+
   query += user_id ? '' : ' LIMIT 20';
+
+  const pageNum = (page - 1) * 20;
+  query += ` OFFSET ${pageNum}`;
+
   return { query, queryParams };
 };
 
 app.post('/getContent', async (req, res) => {
   try {
     const { user_id, content_type, title, filter } = req.body;
-    const { query, queryParams } = buildQuery(user_id, content_type, title, filter);
+    const page = req.query.page ? req.query.page : 1;
+
+    const { query, queryParams } = buildQuery(user_id, content_type, title, filter, page);
 
     const { rows } = await pool.query(query, queryParams);
     res.status(200).json(rows);
@@ -74,4 +81,5 @@ app.get('/getPageCount', async (req, res) => {
     });
   }
 });
+
 module.exports = app;
