@@ -1,6 +1,6 @@
-const express = require('express');
-const app = express.Router();
+const { Router } = require('express');
 const pool = require('./pool.js');
+const app = Router();
 
 const updateUserRating = async (user_id, content_id, user_rating) => {
   await pool.query(

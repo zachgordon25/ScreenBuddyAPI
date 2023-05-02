@@ -1,6 +1,6 @@
-const express = require('express');
-const app = express.Router();
+const { Router } = require('express');
 const pool = require('./pool.js');
+const app = Router();
 
 app.get('/getAllUserIds', async (req, res) => {
   try {
