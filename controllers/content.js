@@ -1,8 +1,8 @@
-const express = require('express');
-const app = express.Router();
+const { Router } = require('express');
 const pool = require('./pool.js');
+const app = Router();
 
-const buildQuery = (user_id, content_type, title, filter, page) => {
+const buildQuery = ({ user_id, content_type, title, filter, page }) => {
   let query = `SELECT content.id, content.title, content.image_url, content.content_type, 
     ${user_id ? 'user_ratings.rating' : 'content.rating'} AS rating FROM content`;
 
@@ -47,10 +47,9 @@ const buildQuery = (user_id, content_type, title, filter, page) => {
 
 app.post('/getContent', async (req, res) => {
   try {
-    const { user_id, content_type, title, filter } = req.body;
-    const page = req.query.page ? req.query.page : 1;
+    const page = req.query.page || 1;
 
-    const { query, queryParams } = buildQuery(user_id, content_type, title, filter, page);
+    const { query, queryParams } = buildQuery({ ...req.body, page });
 
     const { rows } = await pool.query(query, queryParams);
     res.status(200).json(rows);
