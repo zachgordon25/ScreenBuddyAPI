@@ -56,7 +56,7 @@ app.post('/addUserRating', async (req, res) => {
 
 app.put('/updateUserRating', async (req, res) => {
   try {
-    const { rating, user_id, content_id } = req.body;
+    const { user_id, content_id, rating } = req.body;
 
     await updateUserRating(user_id, content_id, rating);
 
