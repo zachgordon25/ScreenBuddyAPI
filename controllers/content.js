@@ -2,17 +2,7 @@ const { Router } = require('express');
 const pool = require('./pool.js');
 const app = Router();
 
-const buildQuery = ({ user_id, content_type, title, filter, page }) => {
-  let query = `SELECT content.id, content.title, content.image_url, content.content_type, 
-    ${user_id ? 'user_ratings.rating' : 'content.rating'} AS rating FROM content`;
-
-  const queryParams = [];
-  if (user_id) {
-    query +=
-      ' JOIN user_ratings ON content.id = user_ratings.content_id AND user_ratings.user_id = $1';
-    queryParams.push(user_id);
-  }
-
+const buildWhereClause = (content_type, title, queryParams) => {
   let whereClause = '';
 
   if (content_type) {
@@ -27,16 +17,30 @@ const buildQuery = ({ user_id, content_type, title, filter, page }) => {
     queryParams.push(`%${title}%`);
   }
 
-  query += whereClause;
+  return whereClause;
+};
 
+const buildOrderBy = (filter, user_id) => {
   if (filter) {
-    query += user_id ? ` ORDER BY user_ratings.${filter}` : ` ORDER BY content.${filter}`;
-  } else {
-    query += user_id
-      ? ' ORDER BY user_ratings.updated_at DESC'
-      : ' ORDER BY content.updated_at DESC';
+    return user_id ? ` ORDER BY user_ratings.${filter}` : ` ORDER BY content.${filter}`;
   }
 
+  return user_id ? ' ORDER BY user_ratings.updated_at DESC' : ' ORDER BY content.updated_at DESC';
+};
+
+const buildQuery = ({ user_id, content_type, title, filter, page }) => {
+  let query = `SELECT content.id, content.title, content.image_url, content.content_type, 
+    ${user_id ? 'user_ratings.rating' : 'content.rating'} AS rating FROM content`;
+
+  const queryParams = [];
+  if (user_id) {
+    query +=
+      ' JOIN user_ratings ON content.id = user_ratings.content_id AND user_ratings.user_id = $1';
+    queryParams.push(user_id);
+  }
+
+  query += buildWhereClause(content_type, title, queryParams);
+  query += buildOrderBy(filter, user_id);
   query += user_id ? '' : ' LIMIT 20';
 
   const pageNum = (page - 1) * 20;
