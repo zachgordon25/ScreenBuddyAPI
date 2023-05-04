@@ -1,5 +1,6 @@
-const { Router } = require('express');
-const pool = require('./pool.js');
+import { Router } from 'express';
+import pool from './pool.js';
+
 const app = Router();
 
 const buildWhereClause = (content_type, title, queryParams) => {
@@ -85,4 +86,4 @@ app.get('/getPageCount', async (req, res) => {
   }
 });
 
-module.exports = app;
+export default app;

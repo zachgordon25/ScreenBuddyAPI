@@ -1,5 +1,6 @@
-const { Router } = require('express');
-const pool = require('./pool.js');
+import { Router } from 'express';
+import pool from './pool.js';
+
 const app = Router();
 
 app.get('/getAllUserIds', async (req, res) => {
@@ -72,4 +73,4 @@ app.post('/addUser', async (req, res) => {
   }
 });
 
-module.exports = app;
+export default app;
