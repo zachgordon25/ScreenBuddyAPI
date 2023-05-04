@@ -1,5 +1,6 @@
-const { Router } = require('express');
-const pool = require('./pool.js');
+import { Router } from 'express';
+import pool from './pool.js';
+
 const app = Router();
 
 const updateUserRating = async (user_id, content_id, user_rating) => {
@@ -97,4 +98,4 @@ app.delete('/deleteUserRating', async (req, res) => {
   }
 });
 
-module.exports = app;
+export default app;
