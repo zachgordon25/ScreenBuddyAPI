@@ -1,7 +1,6 @@
-import { Router } from 'express';
-import pool from './pool.js';
-
-const app = Router();
+const express = require('express');
+const app = express.Router();
+const pool = require('./pool.js');
 
 app.get('/getAllUserIds', async (req, res) => {
   try {
@@ -54,9 +53,10 @@ app.post('/getUser', async (req, res) => {
 
 app.post('/addUser', async (req, res) => {
   try {
-    const { id, username } = req.body.data;
-
-    await pool.query('INSERT INTO users (user_id, username) VALUES ($1, $2)', [id, username]);
+    await pool.query('INSERT INTO users (user_id, username) VALUES ($1, $2)', [
+      req.body.data.id,
+      req.body.data.username,
+    ]);
 
     res.status(200).json({
       success: true,
@@ -72,4 +72,4 @@ app.post('/addUser', async (req, res) => {
   }
 });
 
-export default app;
+module.exports = app;

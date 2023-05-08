@@ -1,7 +1,6 @@
-import { Router } from 'express';
-import pool from './pool.js';
-
-const app = Router();
+const express = require('express');
+const app = express.Router();
+const pool = require('./pool.js');
 
 const updateUserRating = async (user_id, content_id, user_rating) => {
   await pool.query(
@@ -57,11 +56,11 @@ app.post('/addUserRating', async (req, res) => {
 
 app.put('/updateUserRating', async (req, res) => {
   try {
-    const { user_id, content_id, rating } = req.body;
+    const { rating, user_id, content_id } = req.body;
 
     await updateUserRating(user_id, content_id, rating);
 
-    res.status(200).send({
+    res.status(201).send({
       success: true,
       message: 'User rating updated successfully',
     });
@@ -98,4 +97,4 @@ app.delete('/deleteUserRating', async (req, res) => {
   }
 });
 
-export default app;
+module.exports = app;

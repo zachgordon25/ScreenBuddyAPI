@@ -1,9 +1,18 @@
-import { Router } from 'express';
-import pool from './pool.js';
+const express = require('express');
+const app = express.Router();
+const pool = require('./pool.js');
 
-const app = Router();
+const buildQuery = (user_id, content_type, title, filter, page) => {
+  let query = `SELECT content.id, content.title, content.image_url, content.content_type, 
+    ${user_id ? 'user_ratings.rating' : 'content.rating'} AS rating FROM content`;
 
-const buildWhereClause = (content_type, title, queryParams) => {
+  const queryParams = [];
+  if (user_id) {
+    query +=
+      ' JOIN user_ratings ON content.id = user_ratings.content_id AND user_ratings.user_id = $1';
+    queryParams.push(user_id);
+  }
+
   let whereClause = '';
 
   if (content_type) {
@@ -18,44 +27,30 @@ const buildWhereClause = (content_type, title, queryParams) => {
     queryParams.push(`%${title}%`);
   }
 
-  return whereClause;
-};
+  query += whereClause;
 
-const buildOrderBy = (filter, user_id) => {
   if (filter) {
-    return user_id ? ` ORDER BY user_ratings.${filter}` : ` ORDER BY content.${filter}`;
+    query += user_id ? ` ORDER BY user_ratings.${filter}` : ` ORDER BY content.${filter}`;
+  } else {
+    query += user_id
+      ? ' ORDER BY user_ratings.updated_at DESC'
+      : ' ORDER BY content.updated_at DESC';
   }
 
-  return user_id ? ' ORDER BY user_ratings.updated_at DESC' : ' ORDER BY content.updated_at DESC';
-};
-
-const buildQuery = ({ user_id, content_type, title, filter, page }) => {
-  let query = `SELECT content.id, content.title, content.image_url, content.content_type, 
-    ${user_id ? 'user_ratings.rating' : 'content.rating'} AS rating FROM content`;
-
-  const queryParams = [];
-  if (user_id) {
-    query +=
-      ' JOIN user_ratings ON content.id = user_ratings.content_id AND user_ratings.user_id = $1';
-    queryParams.push(user_id);
-  }
-
-  query += buildWhereClause(content_type, title, queryParams);
-  query += buildOrderBy(filter, user_id);
   query += user_id ? '' : ' LIMIT 20';
 
   const pageNum = (page - 1) * 20;
-  query += ` OFFSET $${queryParams.length + 1}`;
-  queryParams.push(pageNum);
+  query += ` OFFSET ${pageNum}`;
 
   return { query, queryParams };
 };
 
 app.post('/getContent', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
+    const { user_id, content_type, title, filter } = req.body;
+    const page = req.query.page || 1;
 
-    const { query, queryParams } = buildQuery({ ...req.body, page });
+    const { query, queryParams } = buildQuery(user_id, content_type, title, filter, page);
 
     const { rows } = await pool.query(query, queryParams);
     res.status(200).json(rows);
@@ -87,4 +82,4 @@ app.get('/getPageCount', async (req, res) => {
   }
 });
 
-export default app;
+module.exports = app;
