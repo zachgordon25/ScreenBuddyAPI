@@ -54,10 +54,9 @@ app.post('/getUser', async (req, res) => {
 
 app.post('/addUser', async (req, res) => {
   try {
-    await pool.query('INSERT INTO users (user_id, username) VALUES ($1, $2)', [
-      req.body.data.id,
-      req.body.data.username,
-    ]);
+    const { id, username } = req.body.data;
+
+    await pool.query('INSERT INTO users (user_id, username) VALUES ($1, $2)', [id, username]);
 
     res.status(200).json({
       success: true,

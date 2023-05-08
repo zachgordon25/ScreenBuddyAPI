@@ -45,14 +45,15 @@ const buildQuery = ({ user_id, content_type, title, filter, page }) => {
   query += user_id ? '' : ' LIMIT 20';
 
   const pageNum = (page - 1) * 20;
-  query += ` OFFSET ${pageNum}`;
+  query += ` OFFSET $${queryParams.length + 1}`;
+  queryParams.push(pageNum);
 
   return { query, queryParams };
 };
 
 app.post('/getContent', async (req, res) => {
   try {
-    const page = req.query.page || 1;
+    const page = parseInt(req.query.page) || 1;
 
     const { query, queryParams } = buildQuery({ ...req.body, page });
 
